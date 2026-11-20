@@ -18,6 +18,7 @@ Entities
 
 from django.db import models
 from django.contrib.auth.models import User
+from zoneinfo import ZoneInfo
 import logging
 import string
 import random
@@ -62,6 +63,9 @@ class Course(models.Model):
     day_wed = models.BooleanField(default=False)
     day_thu = models.BooleanField(default=False)
     day_fri = models.BooleanField(default=False)
+
+    # Added course number, like course=DATA13600
+    course = models.CharField(max_length=50, unique=True, null=True, blank=True)
 
     def meets_on_day(self, weekday_int):
         """Return True if the course meets on the given weekday (0=Mon)."""
@@ -139,3 +143,38 @@ def is_student(user):
     """Return True if the user has a StudentProfile."""
     return hasattr(user, 'student_profile')
 
+
+def getUploadsForCourse(course):
+    # Input: course refers to the course number
+    # Output: A Python list of QRCodeUpload objects that are valid for that course
+
+    # Check whether the given course number refers to an existing course
+    course_obj = Course.objects.filter(course=course).first()
+    if course_obj is None:
+        return [] # No such course exists, ergo no valid QR uploads
+
+    # Retrieve all QRCodeUpload objects associated with that course
+    uploads = QRCodeUpload.objects.filter(lecture__course=course_obj)
+
+    valid_uploads = []
+
+    # For each upload:
+    # Check that the upload's timestamp falls on the right day
+    # Check that the upload's time-of-day falls between the course's start_time and end_time
+    for upload in uploads:
+        upload_datetime = upload.uploaded_at.astimezone(ZoneInfo("America/Chicago"))
+        weekday = upload_datetime.weekday()
+
+        if weekday > 4 or not course_obj.meets_on_day(weekday):
+            continue
+
+        if course_obj.start_time is None or course_obj.end_time is None:
+            continue
+
+        if not (course_obj.start_time <= upload_datetime.time() <= course_obj.end_time):
+            continue
+
+        valid_uploads.append(upload)
+
+    # Return only the uploads that satisfy both conditions
+    return valid_uploads
