@@ -151,7 +151,7 @@ def getUploadsForCourse(course):
     # Output: A Python list of QRCodeUpload objects that are valid for that course
 
     # Check whether the given course number refers to an existing course
-    course_obj = Course.objects.filter(course=course).first()
+    course_obj = Course.objects.filter(name=course).first()
     if course_obj is None:
         return [] # No such course exists, ergo no valid QR uploads
 
