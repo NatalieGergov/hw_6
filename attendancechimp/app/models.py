@@ -17,6 +17,7 @@ Entities
 """
 
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import User
 from zoneinfo import ZoneInfo
 import logging
@@ -122,7 +123,8 @@ class QRCodeUpload(models.Model):
                                 null=True, blank=True,
                                 related_name='uploads')
     image = models.ImageField(upload_to='qr_uploads/', null=True, blank=True)
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+    # uploaded_at = models.DateTimeField(auto_now_add=True)
+    uploaded_at = models.DateTimeField(default=timezone.now, blank=True)
     decoded_data = models.CharField(max_length=256, blank=True, default='')
     is_valid = models.BooleanField(default=False)
 
