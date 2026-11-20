@@ -246,8 +246,6 @@ def getUploads(request):
     # Note: If the course does not exist, this function returns an empty list.
     uploads = getUploadsForCourse(course)
 
-    return uploads
-    '''
     results = []
     for upload in uploads:
         results.append({
@@ -255,4 +253,4 @@ def getUploads(request):
             "upload_time": upload.uploaded_at.astimezone(CDT).strftime("%Y-%m-%d %H:%M:%S")
         })
 
-    return JsonResponse(results, safe=False)'''
+    return JsonResponse(results, safe=False)
