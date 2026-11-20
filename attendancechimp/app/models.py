@@ -65,9 +65,6 @@ class Course(models.Model):
     day_thu = models.BooleanField(default=False)
     day_fri = models.BooleanField(default=False)
 
-    # Added course number, like course=DATA13600
-    course = models.CharField(max_length=50, unique=True, null=True, blank=True)
-
     def meets_on_day(self, weekday_int):
         """Return True if the course meets on the given weekday (0=Mon)."""
         return [self.day_mon, self.day_tue, self.day_wed,
